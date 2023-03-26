@@ -1,9 +1,11 @@
 {
+  // Go
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[go]": {
-    "editor.defaultFormatter": "golang.go-nightly"
+    "editor.defaultFormatter": "golang.go"
   },
+  // Protoc
   "protoc": {
     "editor.formatOnSave": true
   },
