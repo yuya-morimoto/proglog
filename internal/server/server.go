@@ -23,12 +23,23 @@ type CommitLog interface {
 	Read(uint64) (*api.Record, error)
 }
 
-func newGrpcServer(config *Config) (srv *grpcServer, err error) {
-	srv = &grpcServer{
-		Config: config,
+func NewGRPCServer(config *Config, grpcOpts ...grpc.ServerOption) (
+	*grpc.Server,
+	error,
+) {
+	grpcOpts = append(grpcOpts, grpc.StreamInterceptor(
+		grpc_middleware.ChainStreamServer(
+			grpc_auth.StreamServerInterceptor(authenticate),
+		)), grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+		grpc_auth.UnaryServerInterceptor(authenticate),
+	)))
+	gsrv := grpc.NewServer(grpcOpts...)
+	srv, err := newgrpcServer(config)
+	if err != nil {
+		return nil, err
 	}
-
-	return srv, nil
+	api.RegisterLogServer(gsrv, srv)
+	return gsrv, nil
 }
 
 func NewGRPCServer(config *Config) (*grpc.Server, error) {
